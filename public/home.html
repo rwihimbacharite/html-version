@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Home</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link active">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Fine Dining,<br/>Perfectly Reserved</h1>
+      <p>Experience exceptional cuisine in an elegant setting. Book your table in seconds.</p>
+      <div class="hero-actions">
+        <a href="reserve.html" class="btn btn-lg">Reserve a Table</a>
+        <a href="menu.html" class="btn btn-lg btn-outline">View Menu</a>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+
+    <section class="restaurants-section">
+      <h2>Explore Our Restaurants</h2>
+      <p class="section-sub">From intimate fine dining to vibrant casual eats — find your perfect table.</p>
+      <div class="restaurants-grid">
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="The Reserve" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>The Reserve</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Fine Dining</span>
+              <span class="restaurant-tag">French</span>
+              <span class="restaurant-rating">★ 4.9</span>
+            </div>
+            <p>Michelin-starred elegance with seasonal tasting menus and an award-winning wine cellar.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=the-reserve" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=the-reserve" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80" alt="Ember & Oak" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>Ember &amp; Oak</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Steakhouse</span>
+              <span class="restaurant-tag">Grill</span>
+              <span class="restaurant-rating">★ 4.7</span>
+            </div>
+            <p>Open-fire grilling, dry-aged cuts, and bold cocktails in a warm, rustic atmosphere.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=ember-oak" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=ember-oak" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80" alt="Sakura Garden" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>Sakura Garden</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Japanese</span>
+              <span class="restaurant-tag">Sushi</span>
+              <span class="restaurant-rating">★ 4.8</span>
+            </div>
+            <p>Authentic omakase sushi, robata grill, and handcrafted sake in a serene setting.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=sakura-garden" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=sakura-garden" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80" alt="La Piazza" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>La Piazza</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Italian</span>
+              <span class="restaurant-tag">Pizza</span>
+              <span class="restaurant-rating">★ 4.6</span>
+            </div>
+            <p>Wood-fired Neapolitan pizza, fresh pasta, and a lively terrace perfect for groups.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=la-piazza" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=la-piazza" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80" alt="Spice Route" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>Spice Route</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Indian</span>
+              <span class="restaurant-tag">Vegetarian</span>
+              <span class="restaurant-rating">★ 4.7</span>
+            </div>
+            <p>Bold spices, slow-cooked curries, and a vibrant atmosphere inspired by the subcontinent.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=spice-route" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=spice-route" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="restaurant-card">
+          <img class="restaurant-card-img" src="https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80" alt="The Harbour Bistro" loading="lazy" />
+          <div class="restaurant-card-body">
+            <h3>The Harbour Bistro</h3>
+            <div class="restaurant-card-meta">
+              <span class="restaurant-tag">Seafood</span>
+              <span class="restaurant-tag">Casual</span>
+              <span class="restaurant-rating">★ 4.5</span>
+            </div>
+            <p>Fresh-catch seafood, harbour views, and a relaxed vibe — perfect for a long lunch.</p>
+            <div class="restaurant-card-actions">
+              <a href="menu.html?restaurant=harbour-bistro" class="btn btn-outline-dark">View Menu</a>
+              <a href="reserve.html?restaurant=harbour-bistro" class="btn">Book a Table</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🗓</span>
+        <h3>Easy Booking</h3>
+        <p>Browse available time slots and reserve your table in under a minute.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🍷</span>
+        <h3>Curated Menu</h3>
+        <p>Seasonal ingredients, expertly crafted into unforgettable dishes.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">✨</span>
+        <h3>Private Events</h3>
+        <p>Host birthdays, anniversaries, and corporate dinners with us.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📍</span>
+        <h3>Prime Location</h3>
+        <p>Located in the heart of the city, easily accessible by all transport.</p>
+      </div>
+    </section>
+
+    <section class="card cta-card">
+      <div class="cta-content">
+        <div>
+          <h2>Ready for an unforgettable evening?</h2>
+          <p>Tables fill up fast — secure yours today.</p>
+        </div>
+        <a href="reserve.html" class="btn btn-lg">Book Now</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve · <a href="about.html">About</a> · <a href="menu.html">Menu</a> · <a href="reserve.html">Reserve</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>updateNavAuth();</script>
+</body>
+</html>

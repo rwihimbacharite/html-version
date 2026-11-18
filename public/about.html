@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – About</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link active">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <header class="page-hero">
+    <h1>About The Reserve</h1>
+    <p>Our story, our team, our passion for food.</p>
+  </header>
+
+  <main class="container">
+    <div class="about-grid">
+      <div class="card">
+        <h2>Our Story</h2>
+        <p>Founded in 2010, The Reserve began as a small family bistro with a simple mission: serve honest, beautiful food made from the finest local ingredients. Over the years we've grown into one of the city's most beloved dining destinations, while never losing sight of what matters — the people at the table.</p>
+        <p style="margin-top:1rem">Every dish tells a story of the farmers, fishers, and artisans who supply us. We believe great food starts long before it reaches the kitchen.</p>
+      </div>
+      <div class="card">
+        <h2>Our Philosophy</h2>
+        <ul class="about-list">
+          <li>🌿 Seasonal, locally sourced ingredients</li>
+          <li>🔥 Open-fire cooking techniques</li>
+          <li>🍷 Carefully curated wine pairings</li>
+          <li>♻️ Zero-waste kitchen practices</li>
+          <li>🤝 Fair wages and staff wellbeing</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="team-grid">
+      <h2 style="margin-bottom:1.5rem">Meet the Team</h2>
+      <div class="team-cards">
+        <div class="team-card">
+          <div class="team-avatar">👨‍🍳</div>
+          <h3>Marco Rossi</h3>
+          <p>Executive Chef</p>
+          <small>15 years of Michelin-starred experience across Europe.</small>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">👩‍🍳</div>
+          <h3>Aisha Patel</h3>
+          <p>Pastry Chef</p>
+          <small>Award-winning desserts that redefine indulgence.</small>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">🍷</div>
+          <h3>James Okafor</h3>
+          <p>Head Sommelier</p>
+          <small>Curates our 300-label wine cellar with precision.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center;padding:2.5rem">
+      <h2>Visit Us</h2>
+      <p style="margin:0.5rem 0">📍 12 Harbour Lane, City Centre</p>
+      <p style="margin:0.5rem 0">📞 +1 (555) 012-3456</p>
+      <p style="margin:0.5rem 0">✉️ hello@thereserve.com</p>
+      <p style="margin:0.5rem 0">🕐 Mon–Sun: 11:00 AM – 10:00 PM</p>
+      <a href="reserve.html" class="btn" style="margin-top:1.5rem;display:inline-block">Make a Reservation</a>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve · <a href="about.html">About</a> · <a href="menu.html">Menu</a> · <a href="reserve.html">Reserve</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>updateNavAuth();</script>
+</body>
+</html>

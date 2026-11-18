@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link active" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="auth-icon">🔐</span>
+        <h1>Welcome Back</h1>
+        <p>Sign in to manage your reservations</p>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="email" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Your password" required />
+        </div>
+        <div id="message"></div>
+        <button type="submit" class="btn btn-full">Sign In</button>
+      </form>
+
+      <p class="auth-switch">Don't have an account? <a href="register.html">Register here</a></p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    updateNavAuth();
+    if (getUser()) window.location.href = 'home.html';
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = { email: document.getElementById('email').value, password: document.getElementById('password').value };
+      try {
+        const res = await apiFetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        setUser(data);
+        window.location.href = data.role === 'admin' ? 'admin.html' : 'reserve.html';
+      } catch { showMessage('Server error. Please try again.', 'error'); }
+    });
+  </script>
+</body>
+</html>

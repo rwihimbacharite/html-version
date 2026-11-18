@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+    <span id="nav-user"></span>
+    <button class="btn btn-sm" id="logout-btn" style="display:none" onclick="logout()">Admin Logout</button>
+  </nav>
+
+  <main class="container">
+    <h1>Admin Dashboard</h1>
+    <!-- Access denied -->
+    <div id="login-section" class="card" style="max-width:400px;margin:4rem auto;text-align:center">
+      <h2>Admin Access Required</h2>
+      <p style="color:var(--secondary);margin:1rem 0">You must be logged in as an administrator to view this page.</p>
+      <a href="login.html" class="btn">Go to Login</a>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" style="display:none">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('reservations', this)">Reservations</button>
+        <button class="tab" onclick="switchTab('tables', this)">Tables</button>
+        <button class="tab" onclick="switchTab('users', this)">Users <span id="users-count" class="tab-count">0</span></button>
+      </div>
+
+      <!-- Reservations Tab -->
+      <div id="tab-reservations">
+        <div class="card">
+          <div class="form-row" style="align-items:flex-end">
+            <div class="form-group">
+              <label>Filter by Date</label>
+              <input type="date" id="filter-date" onchange="renderReservations()" />
+            </div>
+            <div class="form-group">
+              <label>Filter by Status</label>
+              <select id="filter-status" onchange="renderReservations()">
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="seated">Seated</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" onclick="loadDashboard()">↻ Refresh</button>
+          </div>
+          <div id="reservations-list"></div>
+        </div>
+      </div>
+
+      <!-- Tables Tab -->
+      <div id="tab-tables" style="display:none">
+        <div class="card">
+          <h2>Tables</h2>
+          <div id="tables-list"></div>
+          <hr/>
+          <h3>Add Table</h3>
+          <div class="form-row">
+            <div class="form-group"><label>Name</label><input type="text" id="new-table-name" placeholder="e.g. Table 6" /></div>
+            <div class="form-group"><label>Capacity</label><input type="number" id="new-table-cap" min="1" max="20" /></div>
+            <button class="btn" onclick="addTable()">Add</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Tab -->
+      <div id="tab-users" style="display:none">
+        <div class="card">
+          <h2>Registered Users</h2>
+          <div id="users-list"></div>
+        </div>
+      </div>
+
+      <div id="message"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    let adminPass = '';
+    let appData = null;
+
+    // Role-based access: only admin users can access this page
+    const currentUser = getUser();
+    if (!currentUser || currentUser.role !== 'admin') {
+      document.getElementById('login-section').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    } else {
+      adminPass = currentUser._adminToken || '';
+      loadDashboard();
+    }
+
+    updateNavAuth();
+
+    async function loadDashboard() {
+      try {
+        const res = await apiFetch('/api/data');
+        if (!res.ok) throw new Error(`Request failed (${res.status})`);
+        appData = await res.json();
+        document.getElementById('login-section').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('logout-btn').style.display = 'inline-block';
+        if (!document.getElementById('filter-date').value) {
+          document.getElementById('filter-date').valueAsDate = new Date();
+        }
+        renderReservations();
+        renderTables();
+        renderUsers();
+      } catch (error) { showMessage(`Failed to load data: ${error.message}`, 'error'); }
+    }
+
+    function logout() {
+      clearUser();
+      window.location.href = 'login.html';
+    }
+
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-reservations').style.display = tab === 'reservations' ? 'block' : 'none';
+      document.getElementById('tab-tables').style.display = tab === 'tables' ? 'block' : 'none';
+      document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    function statusBadge(s) {
+      const map = { pending: 'badge-warning', approved: 'badge-success', seated: 'badge-info', cancelled: 'badge-danger', rejected: 'badge-danger', completed: 'badge-secondary' };
+      return `<span class="badge ${map[s] || ''}">${s}</span>`;
+    }
+
+    function renderReservations() {
+      const dateFilter = document.getElementById('filter-date').value;
+      const statusFilter = document.getElementById('filter-status').value;
+      let list = Array.isArray(appData.reservations) ? appData.reservations : [];
+      if (dateFilter) list = list.filter(r => r.date === dateFilter);
+      if (statusFilter) list = list.filter(r => r.status === statusFilter);
+      list = [...list].sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+
+      const el = document.getElementById('reservations-list');
+      if (!list.length) { el.innerHTML = '<p>No reservations found.</p>'; return; }
+
+      el.innerHTML = `<table class="table">
+        <thead><tr><th>Date</th><th>Time</th><th>Restaurant</th><th>Name</th><th>Party</th><th>Table</th><th>Contact</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${list.map(r => `<tr>
+          <td>${escapeHtml(r.date)}</td>
+          <td>${escapeHtml(r.time)}</td>
+          <td>${escapeHtml(r.restaurantName || 'The Reserve')}</td>
+          <td>${escapeHtml(r.name)}</td>
+          <td>${escapeHtml(r.partySize)}</td>
+          <td>${escapeHtml(r.tableName)}</td>
+          <td>${escapeHtml(r.contact)}</td>
+          <td>${statusBadge(escapeHtml(r.status))}</td>
+          <td class="actions">
+            ${r.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="approveReservation('${r.id}')">Approve</button>
+              <button class="btn btn-sm btn-danger" onclick="updateStatus('${r.id}','rejected')">Reject</button>
+              <button class="btn btn-sm btn-danger" onclick="updateStatus('${r.id}','cancelled')">Cancel</button>` : ''}
+            ${r.status === 'approved' ? `<button class="btn btn-sm btn-info" onclick="updateStatus('${r.id}','seated')">Seat</button>
+              <button class="btn btn-sm btn-danger" onclick="updateStatus('${r.id}','cancelled')">Cancel</button>` : ''}
+            ${r.status === 'seated' ? `<button class="btn btn-sm" onclick="updateStatus('${r.id}','completed')">Complete</button>` : ''}
+          </td>
+        </tr>
+        <tr class="reservation-details-row">
+          <td colspan="9">
+            <div class="reservation-details">
+              <div>
+                <strong>Preorder</strong>
+                ${(r.preorder || []).length
+                  ? `<ul>${r.preorder.map(item => `<li>${escapeHtml(item.quantity)} × ${escapeHtml(item.name)}</li>`).join('')}</ul>`
+                  : '<p>No preorder recorded</p>'}
+              </div>
+              <div>
+                <strong>Special requests</strong>
+                <p>${escapeHtml(r.notes || 'None')}</p>
+              </div>
+            </div>
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+
+    function approveReservation(id) {
+      const reservation = appData.reservations.find(item => item.id === id);
+      if (!reservation) return showMessage('Reservation not found. Refresh the dashboard and try again.', 'error');
+      const preorder = (reservation.preorder || []).map(item =>
+        `${item.quantity} × ${item.name}${item.price ? ` (${item.price})` : ''}`
+      );
+      const summary = preorder.length ? preorder.join('\n') : 'No preorder';
+      const requests = reservation.notes ? `\n\nSpecial requests: ${reservation.notes}` : '';
+      if (!confirm(`Approve the reservation at ${reservation.restaurantName || 'The Reserve'}?\n\nPreorder:\n${summary}${requests}`)) return;
+      updateStatus(id, 'approved');
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const res = await apiFetch(`/api/admin/reservations/${encodeURIComponent(id)}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPass, status })
+        });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        await loadDashboard();
+      } catch (error) { showMessage(`Could not update reservation: ${error.message}`, 'error'); }
+    }
+
+    function renderUsers() {
+      const users = Array.isArray(appData.users) ? appData.users : [];
+      document.getElementById('users-count').textContent = users.length;
+      const el = document.getElementById('users-list');
+      if (!users.length) { el.innerHTML = '<p>No users registered yet.</p>'; return; }
+
+      el.onclick = event => {
+        const button = event.target.closest('[data-delete-user]');
+        if (button) deleteUser(button.dataset.deleteUser);
+      };
+      el.innerHTML = `<table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>${users.map(user => {
+          const isAdmin = user.role === 'admin';
+          const joined = user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—';
+          return `<tr>
+            <td>${escapeHtml(user.name)}</td>
+            <td>${escapeHtml(user.email)}</td>
+            <td>${escapeHtml(user.phone || '—')}</td>
+            <td>${escapeHtml(user.role || 'user')}</td>
+            <td>${escapeHtml(joined)}</td>
+            <td>${isAdmin ? '<span class="muted">Protected</span>' : `<button class="btn btn-sm btn-danger" data-delete-user="${escapeHtml(user.id)}">Delete</button>`}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    }
+
+    async function deleteUser(id) {
+      if (!confirm('Delete this user? This cannot be undone.')) return;
+      try {
+        const res = await apiFetch(`/api/admin/users/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPass })
+        });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        await loadDashboard();
+        switchTab('users', document.querySelectorAll('.tab')[2]);
+        showMessage('User deleted.', 'success');
+      } catch (error) { showMessage(`Could not delete user: ${error.message}`, 'error'); }
+    }
+
+    function renderTables() {
+      const el = document.getElementById('tables-list');
+      el.innerHTML = `<table class="table">
+        <thead><tr><th>Name</th><th>Capacity</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>${appData.tables.map(t => `<tr>
+          <td><input type="text" value="${escapeHtml(t.name)}" id="tname-${t.id}" style="width:100px"/></td>
+          <td><input type="number" value="${escapeHtml(t.capacity)}" id="tcap-${t.id}" min="1" max="20" style="width:60px"/></td>
+          <td><span class="badge ${t.occupied ? 'badge-danger' : 'badge-success'}">${t.occupied ? 'Occupied' : 'Available'}</span></td>
+          <td><button class="btn btn-sm" onclick="saveTable(${t.id})">Save</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+
+    async function saveTable(id) {
+      const name = document.getElementById(`tname-${id}`).value;
+      const capacity = document.getElementById(`tcap-${id}`).value;
+      try {
+        const res = await apiFetch(`/api/admin/tables/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPass, name, capacity })
+        });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        await loadDashboard();
+        switchTab('tables', document.querySelectorAll('.tab')[1]);
+      } catch { showMessage('Server error.', 'error'); }
+    }
+
+    async function addTable() {
+      const name = document.getElementById('new-table-name').value;
+      const capacity = document.getElementById('new-table-cap').value;
+      if (!name || !capacity) return showMessage('Name and capacity required.', 'error');
+      try {
+        const res = await apiFetch('/api/admin/tables', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: adminPass, name, capacity })
+        });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        document.getElementById('new-table-name').value = '';
+        document.getElementById('new-table-cap').value = '';
+        await loadDashboard();
+        switchTab('tables', document.querySelectorAll('.tab')[1]);
+      } catch { showMessage('Server error.', 'error'); }
+    }
+  </script>
+</body>
+</html>

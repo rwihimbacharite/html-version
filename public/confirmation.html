@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Confirmation</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#a7f3d0"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div id="content"></div>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    async function load() {
+      if (!id) return render404();
+      try {
+        const res = await apiFetch(`/api/reservations/${encodeURIComponent(id)}`);
+        if (!res.ok) return render404();
+        const r = await res.json();
+        renderReservation(r);
+      } catch { renderError(); }
+    }
+
+    function statusBadge(s) {
+      const map = { pending: 'badge-warning', approved: 'badge-success', seated: 'badge-info', cancelled: 'badge-danger', rejected: 'badge-danger', completed: 'badge-secondary' };
+      return `<span class="badge ${map[s] || ''}">${s}</span>`;
+    }
+
+    function renderReservation(r) {
+      document.getElementById('content').innerHTML = `
+        <div class="card">
+          <h1>✅ Reservation ${statusBadge(r.status)}</h1>
+          <p class="booking-id">Booking ID: <strong>${r.id}</strong></p>
+          <div class="detail-grid">
+            <div><label>Name</label><p>${r.name}</p></div>
+            <div><label>Contact</label><p>${r.contact}</p></div>
+            <div><label>Date</label><p>${r.date}</p></div>
+            <div><label>Time</label><p>${r.time}</p></div>
+            <div><label>Party Size</label><p>${r.partySize}</p></div>
+            <div><label>Table</label><p>${r.tableName}</p></div>
+            <div><label>Restaurant</label><p>${r.restaurantName || 'The Reserve'}</p></div>
+          </div>
+          ${r.preorder && r.preorder.length ? `
+            <div class="reservation-preorder">
+              <h2>Preorder</h2>
+              <ul>${r.preorder.map(item => `<li>${item.quantity} × ${item.name} — ${item.price}</li>`).join('')}</ul>
+            </div>` : ''}
+          ${r.notes ? `<p class="reservation-notes"><strong>Special requests:</strong> ${r.notes}</p>` : ''}
+          ${r.status !== 'cancelled' && r.status !== 'seated' && r.status !== 'completed' && r.status !== 'rejected' ? `
+          <div class="form-actions">
+            <button class="btn btn-secondary" onclick="showModify(${JSON.stringify(r).replace(/"/g, '&quot;')})">Modify</button>
+            <button class="btn btn-danger" onclick="cancelRes('${r.id}')">Cancel Reservation</button>
+          </div>` : ''}
+        </div>
+
+        <div class="card" id="modify-section" style="display:none">
+          <h2>Modify Reservation</h2>
+          <form id="modify-form">
+            <div class="form-row">
+              <div class="form-group"><label>Date</label><input type="date" id="m-date" required /></div>
+              <div class="form-group"><label>Time</label><input type="time" id="m-time" required /></div>
+              <div class="form-group"><label>Party Size</label><input type="number" id="m-party" min="1" max="20" required /></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Name</label><input type="text" id="m-name" required /></div>
+              <div class="form-group"><label>Contact</label><input type="text" id="m-contact" required /></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('modify-section').style.display='none'">Cancel</button>
+              <button type="submit" class="btn">Save Changes</button>
+            </div>
+          </form>
+        </div>
+        <div id="message"></div>`;
+    }
+
+    function showModify(r) {
+      document.getElementById('modify-section').style.display = 'block';
+      document.getElementById('m-date').value = r.date;
+      document.getElementById('m-time').value = r.time;
+      document.getElementById('m-party').value = r.partySize;
+      document.getElementById('m-name').value = r.name;
+      document.getElementById('m-contact').value = r.contact;
+
+      document.getElementById('modify-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const body = {
+          name: document.getElementById('m-name').value,
+          contact: document.getElementById('m-contact').value,
+          partySize: parseInt(document.getElementById('m-party').value),
+          date: document.getElementById('m-date').value,
+          time: document.getElementById('m-time').value
+        };
+        try {
+          const res = await apiFetch(`/api/reservations/${encodeURIComponent(r.id)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const data = await res.json();
+          if (!res.ok) return showMessage(data.error, 'error');
+          load();
+        } catch { showMessage('Server error.', 'error'); }
+      };
+    }
+
+    async function cancelRes(id) {
+      if (!confirm('Cancel this reservation?')) return;
+      try {
+        const res = await apiFetch(`/api/reservations/${encodeURIComponent(id)}/cancel`, { method: 'PUT' });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        load();
+      } catch { showMessage('Server error.', 'error'); }
+    }
+
+    function render404() {
+      document.getElementById('content').innerHTML = '<div class="card"><h1>Reservation not found</h1><a href="index.html" class="btn">Make a Booking</a></div>';
+    }
+    function renderError() {
+      document.getElementById('content').innerHTML = '<div class="card"><h1>Error loading reservation</h1></div>';
+    }
+
+    load();
+  </script>
+  <script src="app.js"></script>
+  <script>updateNavAuth();</script>
+</body>
+</html>

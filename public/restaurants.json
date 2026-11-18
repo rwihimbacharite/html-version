@@ -1,0 +1,158 @@
+[
+  {
+    "id": "the-reserve",
+    "name": "The Reserve",
+    "menu": {
+      "Starters": [
+        { "name": "Burrata & Heirloom Tomato", "price": "$16" },
+        { "name": "Seared Scallops", "price": "$22" },
+        { "name": "Mushroom Arancini", "price": "$14" }
+      ],
+      "Mains": [
+        { "name": "Dry-Aged Ribeye", "price": "$58" },
+        { "name": "Pan-Roasted Salmon", "price": "$38" },
+        { "name": "Wild Mushroom Risotto", "price": "$32" }
+      ],
+      "Desserts": [
+        { "name": "Chocolate Fondant", "price": "$14" },
+        { "name": "Crème Brûlée", "price": "$12" },
+        { "name": "Lemon Tart", "price": "$13" }
+      ],
+      "Drinks": [
+        { "name": "House Red Wine", "price": "$12 / $48" },
+        { "name": "House White Wine", "price": "$12 / $48" },
+        { "name": "Signature Cocktail", "price": "$16" }
+      ]
+    }
+  },
+  {
+    "id": "ember-oak",
+    "name": "Ember & Oak",
+    "menu": {
+      "Starters": [
+        { "name": "Bone Marrow Toast", "price": "$18" },
+        { "name": "Beef Tartare", "price": "$24" },
+        { "name": "Smoked Brisket Sliders", "price": "$16" }
+      ],
+      "Mains": [
+        { "name": "Tomahawk Steak", "price": "$95" },
+        { "name": "Wagyu Burger", "price": "$32" },
+        { "name": "Rack of Lamb", "price": "$52" }
+      ],
+      "Desserts": [
+        { "name": "Sticky Toffee Pudding", "price": "$12" },
+        { "name": "Bourbon Pecan Pie", "price": "$13" },
+        { "name": "Grilled Pineapple", "price": "$10" }
+      ],
+      "Drinks": [
+        { "name": "Craft Ales", "price": "$8" },
+        { "name": "Whisky Flight", "price": "$28" },
+        { "name": "Smoky Old Fashioned", "price": "$16" }
+      ]
+    }
+  },
+  {
+    "id": "sakura-garden",
+    "name": "Sakura Garden",
+    "menu": {
+      "Starters": [
+        { "name": "Edamame", "price": "$6" },
+        { "name": "Gyoza", "price": "$12" },
+        { "name": "Tuna Tataki", "price": "$18" }
+      ],
+      "Mains": [
+        { "name": "Omakase Sushi", "price": "$55" },
+        { "name": "Tonkotsu Ramen", "price": "$22" },
+        { "name": "Teriyaki Salmon", "price": "$28" }
+      ],
+      "Desserts": [
+        { "name": "Matcha Ice Cream", "price": "$9" },
+        { "name": "Dorayaki", "price": "$10" },
+        { "name": "Yuzu Cheesecake", "price": "$11" }
+      ],
+      "Drinks": [
+        { "name": "Sake Flight", "price": "$22" },
+        { "name": "Japanese Whisky", "price": "$14" },
+        { "name": "Matcha Latte", "price": "$7" }
+      ]
+    }
+  },
+  {
+    "id": "la-piazza",
+    "name": "La Piazza",
+    "menu": {
+      "Starters": [
+        { "name": "Bruschetta al Pomodoro", "price": "$12" },
+        { "name": "Antipasto Misto", "price": "$22" },
+        { "name": "Arancini al Ragù", "price": "$14" }
+      ],
+      "Mains": [
+        { "name": "Margherita", "price": "$20" },
+        { "name": "Tagliatelle Bolognese", "price": "$28" },
+        { "name": "Chicken Parmigiana", "price": "$30" }
+      ],
+      "Desserts": [
+        { "name": "Tiramisu", "price": "$12" },
+        { "name": "Cannoli", "price": "$10" },
+        { "name": "Panna Cotta", "price": "$11" }
+      ],
+      "Drinks": [
+        { "name": "Chianti Classico", "price": "$14 / $56" },
+        { "name": "Aperol Spritz", "price": "$14" },
+        { "name": "Italian Lemonade", "price": "$7" }
+      ]
+    }
+  },
+  {
+    "id": "spice-route",
+    "name": "Spice Route",
+    "menu": {
+      "Starters": [
+        { "name": "Samosa Chaat", "price": "$12" },
+        { "name": "Tandoori Prawns", "price": "$18" },
+        { "name": "Paneer Tikka", "price": "$14" }
+      ],
+      "Mains": [
+        { "name": "Butter Chicken", "price": "$26" },
+        { "name": "Lamb Rogan Josh", "price": "$30" },
+        { "name": "Dal Makhani", "price": "$22" }
+      ],
+      "Desserts": [
+        { "name": "Gulab Jamun", "price": "$10" },
+        { "name": "Mango Kulfi", "price": "$9" },
+        { "name": "Cardamom Rice Pudding", "price": "$9" }
+      ],
+      "Drinks": [
+        { "name": "Mango Lassi", "price": "$7" },
+        { "name": "Masala Chai", "price": "$5" },
+        { "name": "Indian Pale Ale", "price": "$9" }
+      ]
+    }
+  },
+  {
+    "id": "harbour-bistro",
+    "name": "The Harbour Bistro",
+    "menu": {
+      "Starters": [
+        { "name": "Pacific Oysters", "price": "$22" },
+        { "name": "Prawn Cocktail", "price": "$16" },
+        { "name": "Clam Chowder", "price": "$14" }
+      ],
+      "Mains": [
+        { "name": "Whole Grilled Sea Bass", "price": "$44" },
+        { "name": "Lobster Thermidor", "price": "$68" },
+        { "name": "Fish & Chips", "price": "$26" }
+      ],
+      "Desserts": [
+        { "name": "Key Lime Pie", "price": "$11" },
+        { "name": "Coconut Panna Cotta", "price": "$10" },
+        { "name": "Lemon Posset", "price": "$10" }
+      ],
+      "Drinks": [
+        { "name": "Crisp White Wine", "price": "$13 / $52" },
+        { "name": "Coastal Spritz", "price": "$14" },
+        { "name": "Craft Lager", "price": "$7" }
+      ]
+    }
+  }
+]

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Restaurant Menus</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link active">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <header class="page-hero menu-hero">
+    <div id="menu-hero-content">
+      <h1>Our Menus</h1>
+      <p>Choose a restaurant to explore its own menu.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="restaurant-picker" class="restaurants-section">
+      <h2>Choose Your Dining Experience</h2>
+      <p class="section-sub">Every restaurant has its own dishes, drinks, and specialties.</p>
+      <div class="restaurants-grid" id="restaurant-menu-list"></div>
+    </section>
+
+    <section id="restaurant-menu" hidden>
+      <div class="menu-navigation">
+        <a href="menu.html" class="menu-back-link">← All restaurants</a>
+        <a href="reserve.html" id="menu-reserve-link" class="btn btn-sm">Reserve a Table</a>
+      </div>
+      <div class="menu-tabs" id="menu-tabs" role="tablist" aria-label="Menu categories"></div>
+      <div class="menu-cards-grid" id="menu-items"></div>
+      <div class="card menu-note">
+        <p>Menu changes seasonally. Please inform us of any dietary requirements when booking.</p>
+        <a href="reserve.html" id="menu-reserve-link-bottom" class="btn" style="margin-top:1rem;display:inline-block">Reserve a Table</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve · <a href="about.html">About</a> · <a href="menu.html">Menu</a> · <a href="reserve.html">Reserve</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const restaurants = [
+      {
+        id: 'the-reserve', name: 'The Reserve', cuisine: 'French Fine Dining',
+        description: 'Seasonal tasting dishes and classic French technique.',
+        image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Burrata & Heirloom Tomato', 'Fresh burrata, roasted tomatoes, basil oil, sea salt', '$16', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=600&q=80'],
+            ['Seared Scallops', 'Cauliflower purée, crispy capers, lemon butter', '$22', 'https://images.unsplash.com/photo-1559742811-822873691df8?w=600&q=80'],
+            ['Mushroom Arancini', 'Truffle risotto, parmesan, wild mushroom ragù', '$14', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80']
+          ],
+          Mains: [
+            ['Dry-Aged Ribeye', '28-day aged ribeye, bone marrow butter, roasted garlic fries', '$58', 'https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80'],
+            ['Pan-Roasted Salmon', 'Atlantic salmon, pea purée, asparagus, dill cream', '$38', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80'],
+            ['Wild Mushroom Risotto', 'Porcini, arborio rice, truffle oil, aged parmesan', '$32', 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80']
+          ],
+          Desserts: [
+            ['Chocolate Fondant', 'Warm dark chocolate, vanilla bean ice cream, salted caramel', '$14', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80'],
+            ['Crème Brûlée', 'Vanilla custard, caramelised sugar, fresh berries', '$12', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80'],
+            ['Lemon Tart', 'Tangy lemon curd, buttery pastry, Italian meringue', '$13', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80']
+          ],
+          Drinks: [
+            ['House Red Wine', 'Malbec, Mendoza, Argentina', '$12 / $48', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'],
+            ['House White Wine', 'Sauvignon Blanc, Marlborough, New Zealand', '$12 / $48', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'],
+            ['Signature Cocktail', 'Seasonal fruit, premium spirits, house bitters', '$16', 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80']
+          ]
+        }
+      },
+      {
+        id: 'ember-oak', name: 'Ember & Oak', cuisine: 'Steakhouse & Grill',
+        description: 'Open-fire grilled cuts, smoked favorites, and bold drinks.',
+        image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Bone Marrow Toast', 'Roasted marrow, sourdough, chimichurri, pickled shallots', '$18', 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80'],
+            ['Beef Tartare', 'Hand-cut fillet, capers, cornichons, toasted brioche', '$24', 'https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80'],
+            ['Smoked Brisket Sliders', 'Slow-smoked brisket, slaw, BBQ sauce, mini brioche', '$16', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80']
+          ],
+          Mains: [
+            ['Tomahawk Steak', 'Open-fire grilled, truffle butter, triple-cooked chips', '$95', 'https://images.unsplash.com/photo-1558030006-450675393462?w=600&q=80'],
+            ['Wagyu Burger', 'Wagyu patty, aged cheddar, caramelised onion, house sauce', '$32', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80'],
+            ['Rack of Lamb', 'Herb crust, rosemary jus, roasted root vegetables', '$52', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80']
+          ],
+          Desserts: [
+            ['Sticky Toffee Pudding', 'Warm date sponge, toffee sauce, clotted cream', '$12', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80'],
+            ['Bourbon Pecan Pie', 'Buttery pastry, bourbon pecans, vanilla ice cream', '$13', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80'],
+            ['Grilled Pineapple', 'Fire-roasted pineapple, cinnamon sugar, vanilla cream', '$10', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80']
+          ],
+          Drinks: [
+            ['Craft Ales', 'Rotating selection of local craft beers on tap', '$8', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'],
+            ['Whisky Flight', 'Three premium single malts with tasting notes', '$28', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'],
+            ['Smoky Old Fashioned', 'Bourbon, smoked maple syrup, bitters, orange peel', '$16', 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80']
+          ]
+        }
+      },
+      {
+        id: 'sakura-garden', name: 'Sakura Garden', cuisine: 'Japanese & Sushi',
+        description: 'Sushi, robata grill specialties, and handcrafted sake.',
+        image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Edamame', 'Steamed soybeans, sea salt, chilli flakes', '$6', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80'],
+            ['Gyoza', 'Pan-fried pork and cabbage dumplings, ponzu sauce', '$12', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'],
+            ['Tuna Tataki', 'Seared yellowfin tuna, yuzu dressing, sesame', '$18', 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80']
+          ],
+          Mains: [
+            ['Omakase Sushi', 'Chef selection of seasonal nigiri, wasabi, pickled ginger', '$55', 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=600&q=80'],
+            ['Tonkotsu Ramen', 'Pork bone broth, chashu, soft egg, nori, bamboo shoots', '$22', 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80'],
+            ['Teriyaki Salmon', 'Glazed salmon, steamed rice, pickled cucumber, miso', '$28', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80']
+          ],
+          Desserts: [
+            ['Matcha Ice Cream', 'Ceremonial matcha, red bean paste, mochi', '$9', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80'],
+            ['Dorayaki', 'Fluffy pancakes, sweet red bean filling, cream', '$10', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80'],
+            ['Yuzu Cheesecake', 'Light cheesecake, yuzu citrus, sesame crumble', '$11', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80']
+          ],
+          Drinks: [
+            ['Sake Flight', 'Three premium sakes, from dry to sweet', '$22', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'],
+            ['Japanese Whisky', 'Suntory Toki, highball style, soda, lemon', '$14', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'],
+            ['Matcha Latte', 'Ceremonial matcha, steamed oat milk, honey', '$7', 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80']
+          ]
+        }
+      },
+      {
+        id: 'la-piazza', name: 'La Piazza', cuisine: 'Italian',
+        description: 'Wood-fired pizza, fresh pasta, and classic Italian flavors.',
+        image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Bruschetta al Pomodoro', 'Toasted sourdough, ripe tomatoes, basil, extra-virgin olive oil', '$12', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=600&q=80'],
+            ['Antipasto Misto', 'Italian cured meats, cheeses, olives, grilled vegetables', '$22', 'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80'],
+            ['Arancini al Ragù', 'Crispy risotto balls, slow-braised beef, parmesan', '$14', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80']
+          ],
+          Mains: [
+            ['Margherita', 'Wood-fired dough, San Marzano tomato, mozzarella, basil', '$20', 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80'],
+            ['Tagliatelle Bolognese', 'Fresh egg pasta, slow-cooked beef and pork ragù', '$28', 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80'],
+            ['Chicken Parmigiana', 'Crispy chicken, tomato sauce, mozzarella, spaghetti', '$30', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80']
+          ],
+          Desserts: [
+            ['Tiramisu', 'Espresso-soaked savoiardi, mascarpone, cocoa', '$12', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80'],
+            ['Cannoli', 'Crisp pastry, sweet ricotta, pistachio, chocolate', '$10', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80'],
+            ['Panna Cotta', 'Vanilla cream, seasonal berries, berry coulis', '$11', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80']
+          ],
+          Drinks: [
+            ['Chianti Classico', 'Tuscan Sangiovese, cherry and spice', '$14 / $56', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80'],
+            ['Aperol Spritz', 'Aperol, prosecco, soda, fresh orange', '$14', 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80'],
+            ['Italian Lemonade', 'Fresh lemon, sparkling water, mint', '$7', 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80']
+          ]
+        }
+      },
+      {
+        id: 'spice-route', name: 'Spice Route', cuisine: 'Indian',
+        description: 'Slow-cooked curries, tandoor favorites, and fragrant spices.',
+        image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Samosa Chaat', 'Crispy samosas, chickpea curry, tamarind, yoghurt', '$12', 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80'],
+            ['Tandoori Prawns', 'Tandoor-roasted prawns, mint chutney, pickled onion', '$18', 'https://images.unsplash.com/photo-1559742811-822873691df8?w=600&q=80'],
+            ['Paneer Tikka', 'Marinated paneer, peppers, onion, chaat masala', '$14', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80']
+          ],
+          Mains: [
+            ['Butter Chicken', 'Slow-cooked chicken, tomato-cream sauce, naan', '$26', 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80'],
+            ['Lamb Rogan Josh', 'Braised lamb, Kashmiri spices, saffron rice', '$30', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80'],
+            ['Dal Makhani', 'Overnight black lentils, butter, cream, basmati rice', '$22', 'https://images.unsplash.com/photo-1476124369491-e7addf5db371?w=600&q=80']
+          ],
+          Desserts: [
+            ['Gulab Jamun', 'Milk dumplings, rose syrup, pistachio', '$10', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80'],
+            ['Mango Kulfi', 'Indian ice cream, Alphonso mango, cardamom', '$9', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80'],
+            ['Cardamom Rice Pudding', 'Slow-cooked rice, cardamom, toasted nuts', '$9', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80']
+          ],
+          Drinks: [
+            ['Mango Lassi', 'Chilled yoghurt, mango, cardamom', '$7', 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80'],
+            ['Masala Chai', 'Black tea, ginger, cardamom, cinnamon, milk', '$5', 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80'],
+            ['Indian Pale Ale', 'Craft IPA brewed with coriander and cumin', '$9', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80']
+          ]
+        }
+      },
+      {
+        id: 'harbour-bistro', name: 'The Harbour Bistro', cuisine: 'Seafood',
+        description: 'Fresh-catch seafood, coastal classics, and harbour-side drinks.',
+        image: 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=900&q=80',
+        menu: {
+          Starters: [
+            ['Pacific Oysters', 'Fresh oysters, shallot mignonette, lemon, Tabasco', '$22', 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80'],
+            ['Prawn Cocktail', 'Tiger prawns, Marie Rose sauce, avocado, crisp lettuce', '$16', 'https://images.unsplash.com/photo-1559742811-822873691df8?w=600&q=80'],
+            ['Clam Chowder', 'New England chowder, smoked bacon, sourdough', '$14', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?w=600&q=80']
+          ],
+          Mains: [
+            ['Whole Grilled Sea Bass', 'Line-caught sea bass, herb butter, roasted fennel', '$44', 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80'],
+            ['Lobster Thermidor', 'Lobster, cream sauce, gruyère, fries, salad', '$68', 'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80'],
+            ['Fish & Chips', 'Beer-battered cod, chips, mushy peas, tartare sauce', '$26', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80']
+          ],
+          Desserts: [
+            ['Key Lime Pie', 'Tangy lime curd, graham cracker crust, whipped cream', '$11', 'https://images.unsplash.com/photo-1519915028121-7d3463d20b13?w=600&q=80'],
+            ['Coconut Panna Cotta', 'Coconut cream, mango coulis, toasted coconut', '$10', 'https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=600&q=80'],
+            ['Lemon Posset', 'Silky lemon cream, shortbread, fresh berries', '$10', 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=80']
+          ],
+          Drinks: [
+            ['Crisp White Wine', 'Albarino, Rias Baixas, pairs beautifully with seafood', '$13 / $52', 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80'],
+            ['Coastal Spritz', 'Aperol, prosecco, soda, orange, sea-salt rim', '$14', 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=600&q=80'],
+            ['Craft Lager', 'Light, crisp lager brewed locally', '$7', 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&q=80']
+          ]
+        }
+      }
+    ];
+
+    updateNavAuth();
+
+    const picker = document.getElementById('restaurant-picker');
+    const menuSection = document.getElementById('restaurant-menu');
+    const restaurantList = document.getElementById('restaurant-menu-list');
+    const requestedRestaurant = new URLSearchParams(window.location.search).get('restaurant');
+
+    function showRestaurantPicker() {
+      restaurantList.innerHTML = restaurants.map(restaurant => `
+        <article class="restaurant-card">
+          <a href="menu.html?restaurant=${restaurant.id}" aria-label="View ${restaurant.name} menu">
+            <img class="restaurant-card-img" src="${restaurant.image}" alt="${restaurant.name} dining room" loading="lazy">
+          </a>
+          <div class="restaurant-card-body">
+            <div class="restaurant-card-meta"><span class="restaurant-tag">${restaurant.cuisine}</span></div>
+            <h3>${restaurant.name}</h3>
+            <p>${restaurant.description}</p>
+            <a href="menu.html?restaurant=${restaurant.id}" class="btn">Explore this menu</a>
+          </div>
+        </article>`).join('');
+    }
+
+    function showRestaurantMenu(restaurant) {
+      picker.hidden = true;
+      menuSection.hidden = false;
+      const reserveUrl = `reserve.html?restaurant=${encodeURIComponent(restaurant.id)}`;
+      document.getElementById('menu-reserve-link').href = reserveUrl;
+      document.getElementById('menu-reserve-link-bottom').href = reserveUrl;
+      document.title = `The Reserve – ${restaurant.name} Menu`;
+      document.getElementById('menu-hero-content').innerHTML = `
+        <p class="menu-cuisine">${restaurant.cuisine}</p>
+        <h1>${restaurant.name}</h1>
+        <p>${restaurant.description}</p>`;
+      document.querySelector('.menu-hero').style.backgroundImage =
+        `linear-gradient(rgba(44,10,5,0.62), rgba(44,10,5,0.78)), url("${restaurant.image}")`;
+
+      const tabs = document.getElementById('menu-tabs');
+      const categories = Object.keys(restaurant.menu);
+      tabs.innerHTML = categories.map((category, index) => `
+        <button class="menu-tab${index === 0 ? ' active' : ''}" type="button" role="tab"
+          aria-selected="${index === 0}" data-category="${category}">${category}</button>`).join('');
+
+      function renderCategory(category) {
+        tabs.querySelectorAll('.menu-tab').forEach(tab => {
+          const selected = tab.dataset.category === category;
+          tab.classList.toggle('active', selected);
+          tab.setAttribute('aria-selected', String(selected));
+        });
+        document.getElementById('menu-items').innerHTML = restaurant.menu[category].map(([name, description, price, image]) => `
+          <article class="menu-card">
+            <img src="${image}" alt="${name}" loading="lazy">
+            <div class="menu-card-body">
+              <h3>${name}</h3>
+              <p>${description}</p>
+              <span class="menu-price">${price}</span>
+            </div>
+          </article>`).join('');
+      }
+
+      tabs.addEventListener('click', event => {
+        const tab = event.target.closest('.menu-tab');
+        if (tab) renderCategory(tab.dataset.category);
+      });
+      renderCategory(categories[0]);
+    }
+
+    showRestaurantPicker();
+    const selectedRestaurant = restaurants.find(restaurant => restaurant.id === requestedRestaurant);
+    if (selectedRestaurant) showRestaurantMenu(selectedRestaurant);
+  </script>
+</body>
+</html>

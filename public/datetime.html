@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Server Time</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link">Reserve</a>
+      <a href="datetime.html" class="nav-link active">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#a7f3d0"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="datetime-page">
+      <div class="clock-card">
+        <div class="clock-icon">🕐</div>
+        <h1>Server Date & Time</h1>
+        <p class="clock-subtitle">Live time from the server</p>
+
+        <div class="clock-display">
+          <div class="clock-time" id="clock-time">--:--:--</div>
+          <div class="clock-date" id="clock-date">Loading...</div>
+        </div>
+
+        <div class="clock-details">
+          <div class="clock-detail">
+            <label>ISO 8601</label>
+            <code id="clock-iso">—</code>
+          </div>
+          <div class="clock-detail">
+            <label>Unix Timestamp</label>
+            <code id="clock-ts">—</code>
+          </div>
+          <div class="clock-detail">
+            <label>Server Timezone</label>
+            <code id="clock-tz">—</code>
+          </div>
+        </div>
+
+        <button class="btn" onclick="fetchTime()" style="margin-top:1.5rem">↻ Refresh</button>
+        <p class="clock-note">Auto-refreshes every 10 seconds</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve</p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    updateNavAuth();
+
+    async function fetchTime() {
+      try {
+        const res = await apiFetch('/api/datetime');
+        const d = await res.json();
+        document.getElementById('clock-time').textContent = d.time;
+        document.getElementById('clock-date').textContent = d.date;
+        document.getElementById('clock-iso').textContent = d.iso;
+        document.getElementById('clock-ts').textContent = d.timestamp;
+        document.getElementById('clock-tz').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone + ' (server)';
+      } catch {
+        document.getElementById('clock-time').textContent = 'Error';
+      }
+    }
+
+    fetchTime();
+    setInterval(fetchTime, 10000);
+  </script>
+</body>
+</html>

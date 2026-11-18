@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Reserve – Book a Table</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <a href="home.html" class="brand">🍽 The Reserve</a>
+    <div class="nav-links">
+      <a href="home.html" class="nav-link">Home</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="menu.html" class="nav-link">Menu</a>
+      <a href="reserve.html" class="nav-link active">Reserve</a>
+      <a href="datetime.html" class="nav-link">🕐 Time</a>
+      <a href="login.html" class="nav-link" id="nav-login">Login</a>
+      <a href="register.html" class="nav-link" id="nav-register">Register</a>
+      <span class="nav-link" id="nav-user-name" style="display:none;color:#fde68a"></span>
+      <button class="btn btn-sm" id="nav-logout" style="display:none" onclick="clearUser();location.reload()">Logout</button>
+    </div>
+  </nav>
+
+  <header class="page-hero">
+    <h1>Reserve Your Table</h1>
+    <p>Choose a restaurant, find a table, and preorder from its menu.</p>
+  </header>
+
+  <main class="container">
+    <section class="card" id="search-section">
+      <h2>Step 1 — Find Available Slots</h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="search-restaurant">Restaurant</label>
+          <select id="search-restaurant" required></select>
+        </div>
+        <div class="form-group">
+          <label for="search-date">Date</label>
+          <input type="date" id="search-date" />
+        </div>
+        <div class="form-group">
+          <label for="search-party">Party Size</label>
+          <input type="number" id="search-party" min="1" max="20" value="2" />
+        </div>
+        <button class="btn" type="button" onclick="searchSlots()">Search Slots</button>
+      </div>
+      <div id="slots-container"></div>
+    </section>
+
+    <section class="card" id="booking-section" style="display:none">
+      <h2>Step 2 — Complete Your Booking</h2>
+      <form id="booking-form">
+        <p id="booking-restaurant" class="booking-restaurant"></p>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="text" id="book-date" readonly />
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <input type="text" id="book-time" readonly />
+          </div>
+          <div class="form-group">
+            <label>Party Size</label>
+            <input type="number" id="book-party" min="1" max="20" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="book-name" placeholder="Full name" required />
+          </div>
+          <div class="form-group">
+            <label>Contact (email/phone)</label>
+            <input type="text" id="book-contact" placeholder="email or phone" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Special Requests (optional)</label>
+          <textarea id="book-notes" placeholder="Dietary requirements, celebrations, accessibility needs..." rows="3" style="padding:0.5rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.95rem;resize:vertical;font-family:inherit"></textarea>
+        </div>
+        <section class="preorder-section" aria-labelledby="preorder-heading">
+          <h3 id="preorder-heading">Preorder from this restaurant</h3>
+          <p class="muted">Choose dishes and quantities from the selected restaurant's menu. You can leave everything at 0 to skip.</p>
+          <div id="preorder-menu" class="preorder-menu"></div>
+        </section>
+        <div id="message"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="cancelBooking()">← Back to Slots</button>
+          <button type="submit" class="btn">Confirm Reservation</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>© 2025 The Reserve · <a href="about.html">About</a> · <a href="menu.html">Menu</a></p>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    updateNavAuth();
+    document.getElementById('search-date').valueAsDate = new Date();
+    const restaurants = [];
+    const restaurantSelect = document.getElementById('search-restaurant');
+    const requestedRestaurantId = new URLSearchParams(window.location.search).get('restaurant');
+
+    // Pre-fill from logged-in user
+    const user = getUser();
+    if (user) {
+      document.getElementById('book-name').value = user.name || '';
+      document.getElementById('book-contact').value = user.email || '';
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[char]);
+    }
+
+    async function loadRestaurants() {
+      try {
+        let response;
+        try {
+          response = await apiFetch('/api/restaurants');
+        } catch {
+          response = null;
+        }
+        if (!response || !response.ok) {
+          response = await apiFetch('/restaurants.json');
+        }
+        if (!response.ok) throw new Error('Restaurant catalog request failed');
+        const catalog = await response.json();
+        if (!Array.isArray(catalog) || catalog.length === 0) {
+          throw new Error('Restaurant catalog is empty or invalid');
+        }
+        restaurants.push(...catalog);
+        restaurantSelect.innerHTML = restaurants.map(restaurant =>
+          `<option value="${escapeHtml(restaurant.id)}">${escapeHtml(restaurant.name)}</option>`
+        ).join('');
+        const initialRestaurant = restaurants.find(restaurant => restaurant.id === requestedRestaurantId)
+          || restaurants.find(restaurant => restaurant.id === 'the-reserve')
+          || restaurants[0];
+        if (initialRestaurant) restaurantSelect.value = initialRestaurant.id;
+        renderPreorderMenu();
+      } catch (error) {
+        document.getElementById('slots-container').textContent = `Could not load restaurants: ${error.message}`;
+        restaurantSelect.disabled = true;
+      }
+    }
+
+    function renderPreorderMenu() {
+      const restaurant = restaurants.find(item => item.id === restaurantSelect.value);
+      const menuContainer = document.getElementById('preorder-menu');
+      if (!restaurant) {
+        menuContainer.innerHTML = '<p class="muted">Choose a restaurant to see its menu.</p>';
+        return;
+      }
+      menuContainer.innerHTML = Object.entries(restaurant.menu).map(([category, items]) => `
+        <div class="preorder-category">
+          <h4>${escapeHtml(category)}</h4>
+          ${items.map(item => `
+            <label class="preorder-item">
+              <span>${escapeHtml(item.name)} <small>${escapeHtml(item.price)}</small></span>
+              <select data-preorder-item="${escapeHtml(item.name)}" aria-label="Quantity of ${escapeHtml(item.name)}">
+                ${Array.from({ length: 21 }, (_, quantity) => `<option value="${quantity}">${quantity}</option>`).join('')}
+              </select>
+            </label>`).join('')}
+        </div>`).join('');
+    }
+
+    restaurantSelect.addEventListener('change', renderPreorderMenu);
+
+    async function searchSlots() {
+      const date = document.getElementById('search-date').value;
+      const party = parseInt(document.getElementById('search-party').value);
+      const restaurantId = restaurantSelect.value;
+      if (!restaurantId || !date || !party) return showMessage('Please choose a restaurant, date, and party size.', 'error');
+      const data = await fetchData();
+      const slots = generateSlots(data, date, party, restaurantId);
+      renderSlots(slots, date, party, restaurantId);
+    }
+
+    function generateSlots(data, date, party, restaurantId) {
+      const { openTime, closeTime, slotInterval } = data.restaurant;
+      const toMins = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+      const openMins = toMins(openTime), closeMins = toMins(closeTime);
+      const slots = [];
+      for (let m = openMins; m < closeMins - slotInterval; m += slotInterval) {
+        const time = `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
+        const slotEnd = m + slotInterval;
+        const available = data.tables.some(t => {
+          if (t.capacity < party) return false;
+          return !data.reservations.some(r => {
+            if ((r.restaurantId || 'the-reserve') !== restaurantId) return false;
+            if (r.tableId !== t.id || r.date !== date) return false;
+            if (r.status === 'rejected' || r.status === 'cancelled') return false;
+            const rStart = toMins(r.time);
+            return m < rStart + slotInterval && slotEnd > rStart;
+          });
+        });
+        slots.push({ time, available });
+      }
+      return slots;
+    }
+
+    function renderSlots(slots, date, party, restaurantId) {
+      const container = document.getElementById('slots-container');
+      if (!slots.length) { container.innerHTML = '<p>No slots found.</p>'; return; }
+      container.innerHTML = `<div class="slots-grid">${slots.map(s => `
+        <button class="slot ${s.available ? 'slot-available' : 'slot-taken'}"
+          ${s.available ? `onclick="selectSlot('${date}','${s.time}',${party},'${restaurantId}')"` : 'disabled'}>
+          ${s.time}<br/><small>${s.available ? 'Available' : 'Full'}</small>
+        </button>`).join('')}</div>`;
+    }
+
+    function selectSlot(date, time, party, restaurantId) {
+      document.getElementById('book-date').value = date;
+      document.getElementById('book-time').value = time;
+      document.getElementById('book-party').value = party;
+      const restaurant = restaurants.find(item => item.id === restaurantId);
+      document.getElementById('booking-restaurant').textContent = `Restaurant: ${restaurant.name}`;
+      document.getElementById('search-section').style.display = 'none';
+      document.getElementById('booking-section').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelBooking() {
+      document.getElementById('booking-section').style.display = 'none';
+      document.getElementById('search-section').style.display = 'block';
+    }
+
+    document.getElementById('booking-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        name: document.getElementById('book-name').value,
+        contact: document.getElementById('book-contact').value,
+        partySize: parseInt(document.getElementById('book-party').value),
+        date: document.getElementById('book-date').value,
+        time: document.getElementById('book-time').value,
+        restaurantId: restaurantSelect.value,
+        notes: document.getElementById('book-notes').value,
+        preorder: [...document.querySelectorAll('[data-preorder-item]')]
+          .map(select => ({ name: select.dataset.preorderItem, quantity: Number(select.value) }))
+          .filter(item => item.quantity > 0)
+      };
+      try {
+        const res = await apiFetch('/api/reservations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) return showMessage(data.error, 'error');
+        window.location.href = `confirmation.html?id=${data.id}`;
+      } catch { showMessage('Server error. Please try again.', 'error'); }
+    });
+
+    loadRestaurants();
+  </script>
+</body>
+</html>
